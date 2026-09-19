@@ -11,10 +11,16 @@ side: present a `cru_` key to a Cruise base URL and project Cruise’s catalogue
 
 ## Commands
 
-`hermes plugins install bytesbrains/cruise-hermes` clones this repo into
-`$HERMES_HOME/plugins/cruise-hermes/` (`plugin.yaml` + root `__init__.py` shim +
-`cruise_hermes/` package). Pip installs the same package via the
-`hermes_agent.plugins` entry point (`cruise` → `cruise_hermes`).
+Two install paths ship the same provider:
+
+- **PyPI:** [`bytesbrains-cruise-hermes`](https://pypi.org/project/bytesbrains-cruise-hermes/)
+  (`pip install bytesbrains-cruise-hermes` + `plugins.enabled: [cruise]`)
+- **Git:** `hermes plugins install bytesbrains/cruise-hermes` clones this repo into
+  `$HERMES_HOME/plugins/cruise-hermes/` (`plugin.yaml` + root `__init__.py` shim +
+  `cruise_hermes/` package)
+
+Both register via the `hermes_agent.plugins` / model-provider discovery path
+(`cruise` → `cruise_hermes`).
 
 ```sh
 # Throwaway Hermes home — does not touch ~/.hermes
@@ -29,10 +35,11 @@ hermes model
 ```
 
 ```sh
-# Local wheel (optional)
+# Local wheel (optional) — or install the published package
 python -m pip install build
 python -m build
 pip install dist/bytesbrains_cruise_hermes-*.whl
+# published: pip install bytesbrains-cruise-hermes
 ```
 
 ## Conventions a change must honour
@@ -67,7 +74,7 @@ pip install dist/bytesbrains_cruise_hermes-*.whl
 | `plugin.yaml` | Manifest (`kind: model-provider`) for `hermes plugins install` |
 | `__init__.py` | Thin shim — imports `cruise_hermes` for git/drop-in installs |
 | `cruise_hermes/` | Package: `register_provider(ProviderProfile(...))` + pip entry point |
-| `pyproject.toml` | PyPI metadata + `hermes_agent.plugins` entry point `cruise` |
+| `pyproject.toml` | PyPI package [`bytesbrains-cruise-hermes`](https://pypi.org/project/bytesbrains-cruise-hermes/) + entry point `cruise` |
 | `README.md` | Product pitch, install, demo rehearsal |
 | `SECURITY.md` | Private vulnerability disclosure |
 | `AGENT.md` | This file — agent conventions |
