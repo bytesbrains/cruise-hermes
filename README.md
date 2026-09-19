@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://bytesbrains.com/cruise"><img src="https://img.shields.io/badge/Product-bytesbrains.com%2Fcruise-111111" alt="Product" /></a>
+  <a href="https://pypi.org/project/bytesbrains-cruise-hermes/"><img src="https://img.shields.io/pypi/v/bytesbrains-cruise-hermes?label=PyPI" alt="PyPI" /></a>
   <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/model-provider-plugin"><img src="https://img.shields.io/badge/Hermes-model%20provider%20plugin-555" alt="Hermes docs" /></a>
   <a href="https://github.com/NousResearch/hermes-agent"><img src="https://img.shields.io/badge/Host-NousResearch%2Fhermes--agent-111111" alt="Hermes Agent" /></a>
 </p>
@@ -27,39 +28,32 @@ client**: a model-provider plugin (`kind: model-provider`) that registers Cruise
 Your keys, budgets and ledger stay on the gateway. Hermes only holds a `cru_` key and talks to
 the base URL you configure.
 
+**Published as** [`bytesbrains-cruise-hermes`](https://pypi.org/project/bytesbrains-cruise-hermes/)
+on [PyPI](https://pypi.org/project/bytesbrains-cruise-hermes/).
+
 | | |
 | --- | --- |
 | **Product** | [bytesbrains.com/cruise](https://bytesbrains.com/cruise) |
-| **Source** | [bytesbrains/cruise-hermes](https://github.com/bytesbrains/cruise-hermes) |
 | **PyPI** | [`bytesbrains-cruise-hermes`](https://pypi.org/project/bytesbrains-cruise-hermes/) |
+| **Source** | [bytesbrains/cruise-hermes](https://github.com/bytesbrains/cruise-hermes) |
 | **Host** | [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) |
+| **Announcement** | [Hermes community plugin #116356](https://github.com/NousResearch/hermes-agent/issues/116356) |
 | **Production API** | `https://cruise.bytesbrains.net/v1` |
 | **Demo API** | `https://cruise-demo.bytesbrains.net/v1` |
 
-**Status:** model-provider plugin verified against the demo (**2026-09-19 UTC**). See
-[Verified against demo](#verified-against-demo) below.
+**Status:** published on PyPI (`0.1.0`); model-provider plugin verified against the demo
+(**2026-09-19 UTC**). See [Verified against demo](#verified-against-demo) below.
 
 ---
 
 ## Install
 
-Requires [Hermes Agent](https://github.com/NousResearch/hermes-agent).
+Requires [Hermes Agent](https://github.com/NousResearch/hermes-agent). Two equivalent paths:
 
-### Preferred — `hermes plugins install`
+### pip
 
-```sh
-hermes plugins install bytesbrains/cruise-hermes
-export CRUISE_API_KEY=cru_demo_…   # or cru_live_…
-# optional — defaults to production:
-# export CRUISE_BASE_URL=https://cruise.bytesbrains.net/v1
-hermes model                       # pick BytesBrains Cruise / a Cruise model id
-hermes doctor                      # probes Cruise GET /v1/models with your key
-```
-
-### Alternative — pip
-
-Install into the **same Python environment** as Hermes, then opt in (pip plugins are
-never loaded until listed under `plugins.enabled`):
+Install into the **same Python environment** as Hermes, then opt in (pip plugins are never
+loaded until listed under `plugins.enabled`):
 
 ```sh
 pip install bytesbrains-cruise-hermes
@@ -74,8 +68,23 @@ plugins:
 
 ```sh
 export CRUISE_API_KEY=cru_demo_…   # or cru_live_…
+# optional — defaults to production:
+# export CRUISE_BASE_URL=https://cruise.bytesbrains.net/v1
 hermes doctor
 hermes model
+```
+
+Package page: https://pypi.org/project/bytesbrains-cruise-hermes/
+
+### `hermes plugins install`
+
+```sh
+hermes plugins install bytesbrains/cruise-hermes
+export CRUISE_API_KEY=cru_demo_…   # or cru_live_…
+# optional — defaults to production:
+# export CRUISE_BASE_URL=https://cruise.bytesbrains.net/v1
+hermes model                       # pick BytesBrains Cruise / a Cruise model id
+hermes doctor                      # probes Cruise GET /v1/models with your key
 ```
 
 ### Drop-in copy
