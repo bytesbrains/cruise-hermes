@@ -42,8 +42,7 @@ the base URL you configure.
 
 ## Install
 
-Requires [Hermes Agent](https://github.com/NousResearch/hermes-agent). Prefer the Git install so
-`plugin.yaml` lands under `$HERMES_HOME/plugins/`:
+Requires [Hermes Agent](https://github.com/NousResearch/hermes-agent). Preferred path:
 
 ```sh
 hermes plugins install bytesbrains/cruise-hermes
@@ -66,9 +65,12 @@ cp plugin.yaml __init__.py "$HERMES_HOME/plugins/model-providers/cruise/"
 | `CRUISE_API_KEY` | Project key (`cru_demo_…` / `cru_live_…`) |
 | `CRUISE_BASE_URL` | Optional override; default `https://cruise.bytesbrains.net/v1` |
 
+Put the key in the environment or `$HERMES_HOME/.env` — never in a committed `config.yaml`, never
+in a settings sync that copies secrets to another machine.
+
 ### Try it before anyone issues you a live key
 
-Point at the demo with a `cru_demo_` key:
+Point at the demo with a `cru_demo_` key from [bytesbrains.com/cruise](https://bytesbrains.com/cruise):
 
 | | |
 | --- | --- |
@@ -86,8 +88,19 @@ hermes -z "hello" --provider cruise -m bb/agentic-coding
 That host holds production’s model ids exactly, every price zero, and **no** provider credential
 in the deployment. Answers are fabricated. It costs nothing to rehearse.
 
-Name models as Cruise names them from `GET /v1/models` (e.g. `bb/agentic-coding`), not as the
-upstream provider does.
+### Switch to production
+
+Same install — change **only** the key and base URL:
+
+```sh
+export CRUISE_API_KEY=cru_live_…
+export CRUISE_BASE_URL=https://cruise.bytesbrains.net/v1   # or unset to use the plugin default
+hermes doctor
+hermes model
+```
+
+For any Hermes host you do not fully control, ask for a `cru_live_` key issued with
+`--rate-limit` / `--account-rate-limit` so a leaked key cannot spend unbounded.
 
 ### Verified against demo
 
@@ -105,6 +118,60 @@ CRUISE_BASE_URL=https://cruise-demo.bytesbrains.net/v1
 | Live catalogue | `ProviderProfile.fetch_models` ids **equal** `GET /v1/models` (63 ids, incl. `bb/agentic-coding`) |
 | Short session | `hermes -z … --provider cruise -m bb/agentic-coding` completed (demo fabricates the body) |
 | Plugin-free fallback | `POST /v1/chat/completions` with the same base URL + key returned HTTP 200 |
+
+---
+
+## Model ids
+
+**Name the model as Cruise names it**, from `GET /v1/models` with your key — not as the upstream
+provider does. A hardcoded `gpt-4o` reaches Cruise as a model it does not route.
+
+A `bb/…` id is a **lane**: Cruise picks a member per request. Prefer a lane for agent work
+(`bb/agentic-coding`); pin a specific model id only when you need that vendor.
+
+After install, `hermes model` lists BytesBrains Cruise and refreshes ids from the live catalogue
+for the presented key. Offline seeds in the plugin (`fallback_models`) are a picker backup only —
+never a frozen catalogue to ship against.
+
+---
+
+## When Cruise refuses
+
+Cruise answers spending refusals with HTTP `429` and OpenAI’s `insufficient_quota` on purpose, so
+stock OpenAI clients fail correctly. **Branch on `error.code`, never on HTTP status alone** —
+several codes share `429` and mean different operator actions. Hermes surfaces the provider error
+body; treat Cruise codes as themselves.
+
+| Code | HTTP (typical) | Meaning | What to do |
+| --- | --- | --- | --- |
+| `budget_exhausted` | 429 | The **project** period cap is spent. Often carries `Retry-After`. | Wait for the period to reset, or ask the project owner to raise the cap. Retrying immediately will keep failing until then. |
+| `wallet_exhausted` | 429 | The account **prepaid wallet** is empty. **No** useful `Retry-After` — waiting does not help. | Top up or get a credit grant. Do **not** retry in a loop. |
+| `measurement_stale` | 429 | That model’s measurement aged out, so Cruise will not route it. | Call a lane (`bb/…`) or another id from `GET /v1/models` for your key. |
+| `model_not_found` | 404 | No such model or lane, or nothing in the lane this key may reach. | Refresh ids from `GET /v1/models`. Do not invent upstream provider ids (`gpt-4o`, …). |
+| `permission_error` | 403 | The key is valid but not scoped for that model. | Pick a model the key reaches, or ask for a wider key. |
+
+**Period cap vs wallet empty:** both look like “out of quota” to a generic OpenAI client. Read
+`error.code`: `budget_exhausted` is a **time-bound project limit**; `wallet_exhausted` is **no
+prepaid balance left**. Confusing them leads to pointless retries or the wrong human escalation.
+
+Auth failures (`Missing bearer token`, `Incorrect API key`) use `type: authentication_error` and
+are not spending refusals — fix the key or env wiring first.
+
+---
+
+## Ground rules for this client
+
+- **Holds a `cru_` key, never a provider credential.** Blast radius is one revocable, budget-capped
+  key.
+- **Key in the environment / `$HERMES_HOME/.env` / a secret store — never in a committed config.**
+  Settings sync and git history are how keys leak without an event to notice them by.
+- **Rate-limit keys** (`--rate-limit` / `--account-rate-limit`) for any Hermes host you do not
+  control.
+- **Traffic only to the configured Cruise base URL.** No telemetry, no second host.
+- **Rehearse on the demo first.** `cruise-demo.bytesbrains.net` with a `cru_demo_` key costs
+  nothing and holds no provider credential in the deployment.
+
+See [SECURITY.md](SECURITY.md) for reporting.
 
 ---
 

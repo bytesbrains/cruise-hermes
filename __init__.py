@@ -4,6 +4,9 @@ Registers Cruise as an OpenAI-compatible chat-completions backend. Hermes holds
 only a ``cru_`` project key; provider credentials, budgets, and the cost ledger
 stay on the gateway. Live model ids come from ``GET /v1/models`` for the
 presented key — ``fallback_models`` is an offline seed only.
+
+Install, env, model ids, refusals, and demo → production switch: see README.md
+(ships with ``hermes plugins install bytesbrains/cruise-hermes``).
 """
 
 from __future__ import annotations
