@@ -11,19 +11,28 @@ side: present a `cru_` key to a Cruise base URL and project Cruise’s catalogue
 
 ## Commands
 
-There is no package build. The plugin is two files at the repo root (`plugin.yaml`,
-`__init__.py`) so `hermes plugins install bytesbrains/cruise-hermes` clones a discoverable
-layout into `$HERMES_HOME/plugins/cruise-hermes/`.
+`hermes plugins install bytesbrains/cruise-hermes` clones this repo into
+`$HERMES_HOME/plugins/cruise-hermes/` (`plugin.yaml` + root `__init__.py` shim +
+`cruise_hermes/` package). Pip installs the same package via the
+`hermes_agent.plugins` entry point (`cruise` → `cruise_hermes`).
 
 ```sh
 # Throwaway Hermes home — does not touch ~/.hermes
 export HERMES_HOME=$HOME/.hermes/cache/scratch/cruise-hermes-test
 mkdir -p "$HERMES_HOME/plugins/model-providers/cruise"
 cp plugin.yaml __init__.py "$HERMES_HOME/plugins/model-providers/cruise/"
+cp -R cruise_hermes "$HERMES_HOME/plugins/model-providers/cruise/"
 export CRUISE_API_KEY=cru_demo_…   # real demo key
 export CRUISE_BASE_URL=https://cruise-demo.bytesbrains.net/v1
 hermes doctor
 hermes model
+```
+
+```sh
+# Local wheel (optional)
+python -m pip install build
+python -m build
+pip install dist/bytesbrains_cruise_hermes-*.whl
 ```
 
 ## Conventions a change must honour
@@ -36,13 +45,16 @@ hermes model
   codes) is fine.
 - Model ids are **Cruise ids** from `GET /v1/models` for the presented key — never invent
   upstream provider ids. Prefer lanes (`bb/…`) over pinned models unless a pin is required.
-  `fallback_models` in `__init__.py` is an offline seed only; do not grow it into a frozen
-  catalogue.
+  `fallback_models` in `cruise_hermes/__init__.py` is an offline seed only; do not grow it
+  into a frozen catalogue.
 - Branch Cruise refusals on `error.code` (`budget_exhausted`, `wallet_exhausted`,
   `measurement_stale`, …), not on HTTP status alone.
-- Keep `plugin.yaml` and `__init__.py` at the **repo root** (required for
-  `hermes plugins install`). Do not nest them under `plugins/model-providers/` in this repo —
-  that path is only for drop-in copies under `$HERMES_HOME`.
+- Keep `plugin.yaml` and a root `__init__.py` shim at the **repo root** (required for
+  `hermes plugins install`). Put the real profile in `cruise_hermes/`. Do not nest under
+  `plugins/model-providers/` in this repo — that path is only for drop-in copies under
+  `$HERMES_HOME`.
+- Keep `[project].version` in `pyproject.toml` aligned with `plugin.yaml` `version` and
+  with `v*` tags used by `.github/workflows/publish-pypi.yml`.
 - Open changes as pull requests against `main`. Do not force-push or delete `main`.
 - Match sister Cruise clients ([openclaw-cruise](https://github.com/bytesbrains/openclaw-cruise),
   [cruise-n8n](https://github.com/bytesbrains/cruise-n8n)) for security and key-handling tone;
@@ -53,11 +65,14 @@ hermes model
 | Path | Role |
 | --- | --- |
 | `plugin.yaml` | Manifest (`kind: model-provider`) for `hermes plugins install` |
-| `__init__.py` | `register_provider(ProviderProfile(...))` for Cruise |
+| `__init__.py` | Thin shim — imports `cruise_hermes` for git/drop-in installs |
+| `cruise_hermes/` | Package: `register_provider(ProviderProfile(...))` + pip entry point |
+| `pyproject.toml` | PyPI metadata + `hermes_agent.plugins` entry point `cruise` |
 | `README.md` | Product pitch, install, demo rehearsal |
 | `SECURITY.md` | Private vulnerability disclosure |
 | `AGENT.md` | This file — agent conventions |
 | `.github/workflows/wrokin-hunter.yml` | Advisory security hunter (does not block merges) |
+| `.github/workflows/publish-pypi.yml` | Publish wheel/sdist on `v*` tags (Trusted Publisher) |
 | `LICENSE` | BytesBrains proprietary client license |
 
 ## Open work

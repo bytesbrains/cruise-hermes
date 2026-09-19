@@ -31,6 +31,7 @@ the base URL you configure.
 | --- | --- |
 | **Product** | [bytesbrains.com/cruise](https://bytesbrains.com/cruise) |
 | **Source** | [bytesbrains/cruise-hermes](https://github.com/bytesbrains/cruise-hermes) |
+| **PyPI** | [`bytesbrains-cruise-hermes`](https://pypi.org/project/bytesbrains-cruise-hermes/) |
 | **Host** | [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) |
 | **Production API** | `https://cruise.bytesbrains.net/v1` |
 | **Demo API** | `https://cruise-demo.bytesbrains.net/v1` |
@@ -42,7 +43,9 @@ the base URL you configure.
 
 ## Install
 
-Requires [Hermes Agent](https://github.com/NousResearch/hermes-agent). Preferred path:
+Requires [Hermes Agent](https://github.com/NousResearch/hermes-agent).
+
+### Preferred — `hermes plugins install`
 
 ```sh
 hermes plugins install bytesbrains/cruise-hermes
@@ -53,11 +56,36 @@ hermes model                       # pick BytesBrains Cruise / a Cruise model id
 hermes doctor                      # probes Cruise GET /v1/models with your key
 ```
 
-Drop-in alternative (same two files, nested path Hermes also scans):
+### Alternative — pip
+
+Install into the **same Python environment** as Hermes, then opt in (pip plugins are
+never loaded until listed under `plugins.enabled`):
+
+```sh
+pip install bytesbrains-cruise-hermes
+```
+
+```yaml
+# ~/.hermes/config.yaml (or $HERMES_HOME/config.yaml)
+plugins:
+  enabled:
+    - cruise
+```
+
+```sh
+export CRUISE_API_KEY=cru_demo_…   # or cru_live_…
+hermes doctor
+hermes model
+```
+
+### Drop-in copy
+
+Nested path Hermes also scans (copy the package directory, not only the shim):
 
 ```sh
 mkdir -p "$HERMES_HOME/plugins/model-providers/cruise"
 cp plugin.yaml __init__.py "$HERMES_HOME/plugins/model-providers/cruise/"
+cp -R cruise_hermes "$HERMES_HOME/plugins/model-providers/cruise/"
 ```
 
 | Env | Role |

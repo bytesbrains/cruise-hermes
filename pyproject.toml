@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bytesbrains-cruise-hermes"
+version = "0.1.0"
+description = "BytesBrains Cruise model-provider plugin for Hermes Agent"
+readme = "README.md"
+license = "LicenseRef-BytesBrains"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "BytesBrains", email = "admin@bytesbrains.com" }]
+keywords = [
+  "bytesbrains",
+  "cruise",
+  "hermes",
+  "hermes-agent",
+  "llm",
+  "model-provider",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries",
+]
+# Host is Hermes Agent; do not pin hermes-agent here — users install into its env.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["build>=1.2", "twine>=5.0"]
+
+[project.urls]
+Homepage = "https://bytesbrains.com/cruise"
+Product = "https://bytesbrains.com/cruise"
+Repository = "https://github.com/bytesbrains/cruise-hermes"
+Issues = "https://github.com/bytesbrains/cruise-hermes/issues"
+Documentation = "https://github.com/bytesbrains/cruise-hermes#readme"
+
+[project.entry-points."hermes_agent.plugins"]
+cruise = "cruise_hermes"
+
+[tool.setuptools.packages.find]
+include = ["cruise_hermes*"]
+exclude = ["tests*", "scripts*"]
