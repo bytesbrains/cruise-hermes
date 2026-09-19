@@ -1,0 +1,10 @@
+name: cruise
+kind: model-provider
+version: 0.1.0
+description: BytesBrains Cruise — OpenAI-compatible gateway with budgets and a cost ledger
+author: BytesBrains
+requires_env:
+  - name: CRUISE_API_KEY
+    description: Cruise project key (cru_demo_… or cru_live_…)
+    url: https://bytesbrains.com/cruise
+    secret: true
