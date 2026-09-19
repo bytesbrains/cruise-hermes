@@ -62,5 +62,4 @@ hermes model
 
 ## Open work
 
-See GitHub issues: verify against the demo (#2), document install/env polish (#3), register
-Hermes in Cruise docs (#4).
+See GitHub issues: document install/env polish (#3), register Hermes in Cruise docs (#4).

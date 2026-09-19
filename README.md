@@ -35,8 +35,8 @@ the base URL you configure.
 | **Production API** | `https://cruise.bytesbrains.net/v1` |
 | **Demo API** | `https://cruise-demo.bytesbrains.net/v1` |
 
-**Status:** model-provider plugin scaffolded. End-to-end demo verification is tracked in
-[Issues](https://github.com/bytesbrains/cruise-hermes/issues).
+**Status:** model-provider plugin verified against the demo (**2026-09-19 UTC**). See
+[Verified against demo](#verified-against-demo) below.
 
 ---
 
@@ -80,6 +80,7 @@ export CRUISE_API_KEY=cru_demo_…
 export CRUISE_BASE_URL=https://cruise-demo.bytesbrains.net/v1
 hermes doctor
 hermes model
+hermes -z "hello" --provider cruise -m bb/agentic-coding
 ```
 
 That host holds production’s model ids exactly, every price zero, and **no** provider credential
@@ -87,6 +88,23 @@ in the deployment. Answers are fabricated. It costs nothing to rehearse.
 
 Name models as Cruise names them from `GET /v1/models` (e.g. `bb/agentic-coding`), not as the
 upstream provider does.
+
+### Verified against demo
+
+**2026-09-19 UTC** — throwaway `HERMES_HOME`, Hermes Agent **v0.21.3**, plugin copied to
+`$HERMES_HOME/plugins/cruise-hermes/` (flat install layout), env:
+
+```text
+CRUISE_API_KEY=cru_demo_…          # never committed
+CRUISE_BASE_URL=https://cruise-demo.bytesbrains.net/v1
+```
+
+| Check | Result |
+| --- | --- |
+| `hermes doctor` | `✓ BytesBrains Cruise` (connectivity / `/models` probe) |
+| Live catalogue | `ProviderProfile.fetch_models` ids **equal** `GET /v1/models` (63 ids, incl. `bb/agentic-coding`) |
+| Short session | `hermes -z … --provider cruise -m bb/agentic-coding` completed (demo fabricates the body) |
+| Plugin-free fallback | `POST /v1/chat/completions` with the same base URL + key returned HTTP 200 |
 
 ---
 
@@ -97,10 +115,12 @@ base URL and key (custom / OpenAI-shaped provider), you can point it at Cruise w
 and skip the plugin — same onboarding as any other OpenAI client:
 
 ```text
-base URL:  https://cruise.bytesbrains.net/v1
-API key:   cru_live_…
+base URL:  https://cruise.bytesbrains.net/v1          # or cruise-demo… for rehearsal
+API key:   cru_live_…                                 # or cru_demo_… on the demo host
 model:     a Cruise id from GET /v1/models
 ```
+
+Verified on the demo host on **2026-09-19 UTC** via `POST /v1/chat/completions` (no Hermes plugin).
 
 The plugin’s job is the Hermes-native path: appear in `hermes model`, wire `hermes doctor`,
 fetch the live catalogue for your key, and keep setup from becoming a hand-edited config file.
