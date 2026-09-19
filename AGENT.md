@@ -84,4 +84,4 @@ pip install dist/bytesbrains_cruise_hermes-*.whl
 
 ## Open work
 
-See GitHub issues: register Hermes in Cruise docs (#4).
+None tracked in this file — see GitHub issues for anything still open.
