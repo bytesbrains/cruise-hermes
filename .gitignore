@@ -1,0 +1,22 @@
+# Secrets never enter this repo (Cruise keys, tokens, etc.).
+# Keep them in the environment or a local .env — never in git.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+
+*.log
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
