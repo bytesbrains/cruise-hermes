@@ -104,4 +104,4 @@ fetch the live catalogue for your key, and keep setup from becoming a hand-edite
 
 ## License
 
-Apache-2.0 — see [LICENSE](LICENSE).
+See [LICENSE](LICENSE).
