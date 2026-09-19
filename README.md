@@ -20,7 +20,7 @@
 ## What this is
 
 [BytesBrains Cruise](https://bytesbrains.com/cruise) is one OpenAI-compatible endpoint in front of
-every model provider. This repository will be the **[Hermes Agent](https://github.com/NousResearch/hermes-agent)
+every model provider. This repository is the **[Hermes Agent](https://github.com/NousResearch/hermes-agent)
 client**: a model-provider plugin (`kind: model-provider`) that registers Cruise so `hermes model`,
 `hermes doctor`, and sessions route through the gateway.
 
@@ -35,26 +35,36 @@ the base URL you configure.
 | **Production API** | `https://cruise.bytesbrains.net/v1` |
 | **Demo API** | `https://cruise-demo.bytesbrains.net/v1` |
 
-**Status:** repository bootstrapped; plugin not shipped yet. Track work in
+**Status:** model-provider plugin scaffolded. End-to-end demo verification is tracked in
 [Issues](https://github.com/bytesbrains/cruise-hermes/issues).
 
 ---
 
-## Intended install (once the plugin lands)
+## Install
 
-Hermes discovers third-party model providers from `$HERMES_HOME/plugins/` or
-`hermes plugins install owner/repo` when `plugin.yaml` declares `kind: model-provider`.
-Expected shape (subject to change while we build):
+Requires [Hermes Agent](https://github.com/NousResearch/hermes-agent). Prefer the Git install so
+`plugin.yaml` lands under `$HERMES_HOME/plugins/`:
 
 ```sh
 hermes plugins install bytesbrains/cruise-hermes
 export CRUISE_API_KEY=cru_demo_…   # or cru_live_…
-hermes model                       # pick Cruise / a Cruise model id
-hermes doctor
+# optional — defaults to production:
+# export CRUISE_BASE_URL=https://cruise.bytesbrains.net/v1
+hermes model                       # pick BytesBrains Cruise / a Cruise model id
+hermes doctor                      # probes Cruise GET /v1/models with your key
 ```
 
-Env vars will follow Hermes `ProviderProfile` convention (API key + optional base-URL override),
-defaulting to production `https://cruise.bytesbrains.net/v1`.
+Drop-in alternative (same two files, nested path Hermes also scans):
+
+```sh
+mkdir -p "$HERMES_HOME/plugins/model-providers/cruise"
+cp plugin.yaml __init__.py "$HERMES_HOME/plugins/model-providers/cruise/"
+```
+
+| Env | Role |
+| --- | --- |
+| `CRUISE_API_KEY` | Project key (`cru_demo_…` / `cru_live_…`) |
+| `CRUISE_BASE_URL` | Optional override; default `https://cruise.bytesbrains.net/v1` |
 
 ### Try it before anyone issues you a live key
 
@@ -64,6 +74,13 @@ Point at the demo with a `cru_demo_` key:
 | --- | --- |
 | **API key** | `cru_demo_…` |
 | **Base URL** | `https://cruise-demo.bytesbrains.net/v1` |
+
+```sh
+export CRUISE_API_KEY=cru_demo_…
+export CRUISE_BASE_URL=https://cruise-demo.bytesbrains.net/v1
+hermes doctor
+hermes model
+```
 
 That host holds production’s model ids exactly, every price zero, and **no** provider credential
 in the deployment. Answers are fabricated. It costs nothing to rehearse.
